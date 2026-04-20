@@ -1,0 +1,37 @@
+<launch>
+
+  <!-- 1. Load URDF -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find robot_description)/urdf/robot.xacro"/>
+
+  <!-- 2. Start Gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+
+  <!-- 3. Spawn robot vào Gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf -model my_robot"
+        output="screen"/>
+
+  <!-- 4. Load controller YAML -->
+  <rosparam file="$(find robot_description)/config/controller.yaml" command="load"/>
+
+  <!-- 5. Spawn controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        respawn="false" output="screen" ns="/robot_controller"
+        args="joint_state_controller
+              wheel_right_rear_position_controller
+              wheel_right_front_position_controller
+              steering_right_position_controller
+              wheel_left_rear_position_controller
+              wheel_left_front_position_controller
+              steering_left_position_controller
+              link_slide_position_controller
+              link_rotate_position_controller"/>
+
+  <!-- 6. Publish joint state -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" output="screen">
+    <remap from="/joint_states" to="/robot/joint_states"/>
+  </node>
+
+</launch>

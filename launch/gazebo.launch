@@ -1,0 +1,36 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find robot_description)/urdf/robot.xacro"/>
+
+  <rosparam file="$(find robot_description)/config/controller.yaml" command="load"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <node name="spawn_urdf"
+        pkg="gazebo_ros"
+        type="spawn_model"
+        args="-param robot_description -urdf -model robot"/>
+
+      <node name="controller_spawner"
+            pkg="controller_manager"
+            type="spawner"
+            output="screen"
+            args="joint_state_controller
+                  arm_slide_controller
+                  arm_rotate_controller
+                  wheel_left_controller
+                  wheel_right_controller
+                  front_left_steer_controller
+                  front_right_steer_controller"/>
+            
+      <node name="ackermann_cmd"
+            pkg="robot_description"
+            type="ackermann_cmd.py"
+            output="screen"/>
+</launch>

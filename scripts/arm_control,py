@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+import rospy
+from std_msgs.msg import Float64
+
+def move_arm():
+    # 1. Khởi tạo Node
+    rospy.init_node('arm_commander_node', anonymous=True)
+
+    # 2. Tạo Publisher cho 2 controller (khớp trượt và khớp xoay)
+    # Tên topic phải khớp chính xác với cấu hình YAML của bạn
+    pub_slide = rospy.Publisher('/arm_slide_controller/command', Float64, queue_size=10)
+    pub_rotate = rospy.Publisher('/arm_rotate_controller/command', Float64, queue_size=10)
+
+    rate = rospy.Rate(10) # Tần số gửi lệnh 10Hz (10 lần/giây)
+    
+    rospy.loginfo("Node dieuk hien tay may da bat dau...")
+
+    while not rospy.is_shutdown():
+        # 3. Định nghĩa giá trị muốn gửi (ví dụ)
+        # Khớp trượt: 0.1 mét | Khớp xoay: 1.0 radian
+        slide_target = 0.1 
+        rotate_target = 1.0
+        
+        # 4. Publish dữ liệu
+        pub_slide.publish(slide_target)
+        pub_rotate.publish(rotate_target)
+        
+        rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        move_arm()
+    except rospy.ROSInterruptException:
+        pass
